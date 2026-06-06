@@ -1,0 +1,22 @@
+PYCHARM-DA DANGO DEMO NUSKASY
+
+1. Myna papkany ashyńyz:
+C:\Users\Admin\Documents\Codex\Демо
+
+2. PyCharm ashylgannan keyin oń jaǵary búryshtan
+"Django Demo 8000" degen run configuration-ny tańdańyz.
+
+3. Jasyl Run batyrmasyn basyńyz.
+
+4. Brauzerde myna siltemeni ashynyz:
+http://127.0.0.1:8000/accounts/login/
+
+5. Demo login:
+login: demo_commission
+password: Demo2026!
+
+6. Eger Run configuration kórinbese, Terminal-da myna komandany oryndańyz:
+"C:\Users\Admin\AppData\Local\Programs\Python\Python311\python.exe" manage.py runserver 0.0.0.0:8000
+
+7. Eń jeńil jol:
+start-demo.bat failyn eki ret basu.

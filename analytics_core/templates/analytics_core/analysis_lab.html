@@ -1,0 +1,135 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+<section class="clean-card p-4 p-lg-5 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <span class="section-badge">Комиссияға арналған дайын платформа</span>
+            <h1 class="h2 mt-3 mb-2">Дайын нәтижелер бірден ашылатын демо нұсқа</h1>
+            <p class="text-secondary mb-0">
+                Бұл нұсқада Excel файлдарын қайта жүктеудің қажеті жоқ. Үш мұғалімнің пәндік нәтижелері базаға
+                алдын ала сақталған, сондықтан жоғарыдағы мұғалім аттарының бірін басып, аналитикалық панель,
+                статистикалық талдау және ЖИ қорытындысын бірден көруге болады.
+            </p>
+        </div>
+        {% if active_analysis_dataset %}
+            <div class="ai-info-card">
+                <span class="ai-info-card-label">Қазір ашық нәтиже</span>
+                <strong class="ai-info-card-text">{{ active_analysis_dataset.teacher_name }} — {{ active_analysis_dataset.subject_title|default:active_analysis_dataset.title }}</strong>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% if ready_datasets %}
+<section class="clean-card p-4 p-lg-5 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <span class="section-badge">Дайын пәндер</span>
+            <h2 class="h4 mt-3 mb-2">3 мұғалімнің дайын нәтижелері</h2>
+            <p class="text-secondary mb-0">
+                Әр карточканы таңдағанда сол мұғалімнің сабағына қатысты барлық дайын нәтижелер ашылады.
+                Әр пәнде 8 сабақ және әр сабақта 3 тапсырма қарастырылған.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        {% for dataset in ready_datasets %}
+            <div class="col-xl-4 col-md-6">
+                <article class="dataset-demo-card {% if active_dataset_id == dataset.id %}dataset-demo-card-active{% endif %}">
+                    <span class="dataset-demo-badge">
+                        {% if active_dataset_id == dataset.id %}Қазір ашық{% else %}Дайын нәтиже{% endif %}
+                    </span>
+                    <h3 class="h6 mb-2">{{ dataset.teacher_name|default:"Пән мұғалімі" }}</h3>
+                    <p class="dataset-demo-teacher mb-2">{{ dataset.subject_title|default:dataset.title }}</p>
+                    <div class="dataset-demo-meta">
+                        <span>{{ dataset.cohort_label|default:"Оқу контексті көрсетілмеген" }}</span>
+                    </div>
+                    <div class="dataset-demo-meta mt-2">
+                        <span>8 сабақ</span>
+                        <span>3 тапсырма</span>
+                    </div>
+                    <p class="dataset-demo-file mt-3 mb-3">{{ dataset.original_filename }}</p>
+                    <div class="dataset-demo-actions">
+                        <a class="btn btn-primary" href="{% url 'analytics_core:select_teacher_dataset' dataset.id %}?next=analytics_core:analysis_panel">Нәтижені ашу</a>
+                        <a class="btn btn-outline-secondary" href="{% url 'analytics_core:analysis_detail' dataset.id %}">Шолу</a>
+                    </div>
+                </article>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section class="clean-card p-4 p-lg-5">
+    <div class="upload-shell upload-shell-single">
+        <form method="post" enctype="multipart/form-data" action="{% url 'analytics_core:upload_dataset' %}" class="upload-form-panel">
+            {% csrf_token %}
+            <div class="upload-copy">
+                <span class="section-badge">Қосымша файл жүктеу</span>
+                <h2 class="h4 mt-3 mb-2">Жаңа пән бойынша дерек енгізу</h2>
+                <p class="text-secondary mb-0">
+                    Егер кейін жаңа пән немесе жаңа топ нәтижесін қосу қажет болса, осы бөлім арқылы CSV немесе Excel файлын жүктеуге болады.
+                    Бірақ комиссияға көрсету үшін жоғарыдағы дайын пәндер жеткілікті.
+                </p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                    {{ form.title }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold" for="{{ form.teacher_name.id_for_label }}">{{ form.teacher_name.label }}</label>
+                    {{ form.teacher_name }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold" for="{{ form.subject_title.id_for_label }}">{{ form.subject_title.label }}</label>
+                    {{ form.subject_title }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold" for="{{ form.cohort_label.id_for_label }}">{{ form.cohort_label.label }}</label>
+                    {{ form.cohort_label }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+                    {{ form.notes }}
+                </div>
+            </div>
+
+            <label class="upload-dropzone" for="{{ form.source_file.id_for_label }}">
+                <span class="upload-dropzone-title">Файл таңдау</span>
+                <span class="upload-dropzone-text">Қолдайтын форматтар: `.csv`, `.xlsx`, `.xls`, `.xlsm`</span>
+                <span class="upload-file-name" id="selected-file-name">Файл әлі таңдалған жоқ</span>
+                {{ form.source_file }}
+            </label>
+            {% if form.source_file.errors %}
+                <div class="text-danger small">{{ form.source_file.errors|join:", " }}</div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="text-secondary small">
+                    Жүктелген файл да осы платформаның барлық вкладкаларында толық талданады.
+                </div>
+                <button type="submit" class="btn btn-primary px-4">Жүктеу</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('{{ form.source_file.id_for_label }}');
+        const output = document.getElementById('selected-file-name');
+        if (!input || !output) return;
+        input.addEventListener('change', function () {
+            output.textContent = input.files && input.files.length
+                ? input.files[0].name
+                : 'Файл әлі таңдалған жоқ';
+        });
+    });
+</script>
+{% endblock %}

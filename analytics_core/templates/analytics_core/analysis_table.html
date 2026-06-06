@@ -1,0 +1,133 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+<section class="clean-card p-4 p-lg-5 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <span class="section-badge">Деректер кестесі</span>
+            <h1 class="h3 mt-3 mb-2">Жүктелген файлдың дәл кестесі</h1>
+            <p class="text-secondary mb-0">{{ dataset.original_filename }} • жалпы {{ total_rows }} жазба, фильтрден кейін {{ filtered_rows }} жазба</p>
+        </div>
+        <a class="btn btn-outline-primary" href="{% url 'analytics_core:analysis_panel' %}">Аналитикалық панель</a>
+    </div>
+</section>
+
+{% include "analytics_core/partials/dataset_context_banner.html" %}
+
+<section class="table-page-layout">
+    <aside class="filter-panel clean-card p-4">
+        <div class="filter-panel-header">
+            <span class="filter-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 6h16l-6 7v5l-4-2v-3L4 6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            <div>
+                <h2 class="h5 mb-1">Фильтр</h2>
+                <p class="text-secondary mb-0">Топ, ФИО, баға және тапсырма бойынша іріктеу.</p>
+            </div>
+        </div>
+
+        <form method="get" class="filter-form">
+            <div>
+                <label class="form-label">Сұрыптау</label>
+                <select name="sort" class="form-select">
+                    {% for column in sort_columns %}
+                        <option value="{{ column }}" {% if filters.sort == column %}selected{% endif %}>{{ column }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label">Бағыты</label>
+                <select name="direction" class="form-select">
+                    <option value="asc" {% if filters.direction == 'asc' %}selected{% endif %}>Өсу ретімен</option>
+                    <option value="desc" {% if filters.direction == 'desc' %}selected{% endif %}>Кему ретімен</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label">Топ</label>
+                <select name="group" class="form-select">
+                    <option value="">Барлығы</option>
+                    {% for group in groups %}
+                        <option value="{{ group }}" {% if filters.group == group %}selected{% endif %}>{{ group }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label">ФИО</label>
+                <input type="text" name="search" class="form-control" value="{{ filters.search }}" placeholder="Студент аты">
+            </div>
+
+            <div>
+                <label class="form-label">Баға диапазоны</label>
+                <select name="score_range" class="form-select">
+                    <option value="">Барлығы</option>
+                    <option value="lt70" {% if filters.score_range == 'lt70' %}selected{% endif %}>&lt; 70</option>
+                    <option value="70_80" {% if filters.score_range == '70_80' %}selected{% endif %}>70–80</option>
+                    <option value="80_90" {% if filters.score_range == '80_90' %}selected{% endif %}>80–90</option>
+                    <option value="90_plus" {% if filters.score_range == '90_plus' %}selected{% endif %}>90+</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label">Тапсырма</label>
+                <input type="text" name="task" class="form-control" value="{{ filters.task }}" placeholder="Мысалы: Тапсырма 1">
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn btn-primary" type="submit">Қолдану</button>
+                <a class="btn btn-outline-secondary" href="{% url 'analytics_core:analysis_table' %}">Тазалау</a>
+            </div>
+        </form>
+    </aside>
+
+    <section class="clean-card p-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div class="text-secondary small">ID бағаны бастапқы 1–{{ total_rows }} реттік нөмірін сақтайды.</div>
+            <span class="result-chip result-chip-muted">Нәтиже: {{ filtered_rows }} жазба</span>
+        </div>
+
+        <div class="table-responsive exact-data-table">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        {% for header in headers %}
+                            <th>{{ header }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in page_obj %}
+                        <tr>
+                            {% for value in row %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="{{ headers|length }}" class="text-center text-secondary">Фильтрге сәйкес дерек табылмады.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="mt-3">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&group={{ filters.group }}&score_range={{ filters.score_range }}&search={{ filters.search }}&task={{ filters.task }}&sort={{ filters.sort }}&direction={{ filters.direction }}">Алдыңғы</a></li>
+                    {% endif %}
+                    <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&group={{ filters.group }}&score_range={{ filters.score_range }}&search={{ filters.search }}&task={{ filters.task }}&sort={{ filters.sort }}&direction={{ filters.direction }}">Келесі</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}

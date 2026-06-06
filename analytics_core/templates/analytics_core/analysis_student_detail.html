@@ -1,0 +1,103 @@
+{% extends "analytics_core/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <span class="badge bg-primary-subtle text-primary-emphasis mb-2">Student profile</span>
+                <h1 class="h3 mb-1">{{ profile.student_name }}</h1>
+                <p class="text-secondary mb-0">���: {{ profile.group_name }} � ������ ����: {{ profile.avg_score }}% � �?�����: {{ profile.risk_score }}%</p>
+            </div>
+            <a class="btn btn-outline-primary" href="{% url 'analytics_core:analysis_panel' %}">�������� ?����</a>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3"><div class="stat-card h-100"><span>������ ����</span><strong>{{ profile.avg_score }}%</strong></div></div>
+    <div class="col-md-6 col-xl-3"><div class="stat-card h-100"><span>�?�����</span><strong>{{ profile.risk_score }}%</strong></div></div>
+    <div class="col-md-6 col-xl-3"><div class="stat-card h-100"><span>?��� ��?����</span><strong>{{ profile.weak_topics|length }}</strong></div></div>
+    <div class="col-md-6 col-xl-3"><div class="stat-card h-100"><span>����� ����</span><strong>{{ profile.record_count }}</strong></div></div>
+</section>
+
+<section class="row g-4 mb-4">
+    {% for chart in charts %}
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h6">{{ chart.title }}</h2>
+                    <p class="text-secondary small">{{ chart.subtitle }}</p>
+                    <div class="plotly-chart" id="student-chart-{{ forloop.counter }}"></div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</section>
+
+<section class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h5 mb-3">?��� ��?�������</h2>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead><tr><th>��?����</th><th>������ ����</th></tr></thead>
+                        <tbody>
+                            {% for row in profile.weak_topics %}
+                                <tr><td>{{ row.lesson_topic }}</td><td>{{ row.avg_score }}%</td></tr>
+                            {% empty %}
+                                <tr><td colspan="2" class="text-secondary">����� ��?.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h5 mb-3">?��������</h2>
+                <ul class="text-secondary mb-0">
+                    {% for item in profile.recommendations %}
+                        <li class="mb-2">{{ item }}</li>
+                    {% empty %}
+                        <li>?����� ��?.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+    {{ charts|json_script:"student-chart-data" }}
+    <script>
+        (function () {
+            const script = document.getElementById("student-chart-data");
+            if (!script || typeof Plotly === "undefined") {
+                return;
+            }
+            const charts = JSON.parse(script.textContent || "[]");
+            charts.forEach((chart, index) => {
+                const target = document.getElementById(`student-chart-${index + 1}`);
+                if (!target) {
+                    return;
+                }
+                let data = [];
+                let layout = {margin: {l: 40, r: 20, t: 20, b: 40}, paper_bgcolor: "#fff", plot_bgcolor: "#fff"};
+                if (chart.type === "line") {
+                    data = [{type: "scatter", mode: "lines+markers", x: chart.labels, y: chart.values, line: {color: "#173b9f"}}];
+                } else if (chart.type === "bar") {
+                    data = [{type: "bar", x: chart.labels, y: chart.values, marker: {color: "#0f766e"}}];
+                } else {
+                    data = [{type: "bar", orientation: "h", x: chart.values, y: chart.labels, marker: {color: "#dc2626"}}];
+                }
+                Plotly.newPlot(target, data, layout, {responsive: true, displaylogo: false});
+            });
+        })();
+    </script>
+{% endblock %}

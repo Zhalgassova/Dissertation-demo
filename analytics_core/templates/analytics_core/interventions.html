@@ -1,0 +1,62 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+<section class="simple-hero">
+    <div>
+        <p class="eyebrow">Pedagogical intervention library</p>
+        <h2>������������? �������������� ����</h2>
+        <p class="lead">
+            �?� �?�� �����������? �?����� ��?�� ������������? ?������� ��������:
+            ?����� �����������, ����, �� ?��� �?�� ?����� �?����� ?������ ?�����?��� �?����.
+        </p>
+    </div>
+</section>
+
+<section class="focus-grid">
+    <article class="panel clean-panel warm-panel">
+        <div class="panel-heading">
+            <p class="eyebrow">?������ ��������</p>
+            <h3>������� �������</h3>
+        </div>
+        <div class="course-grid">
+            {% for course in courses %}
+                <div class="course-card">
+                    <div class="course-topline">
+                        <strong>{{ course.title }}</strong>
+                        <span>{{ course.code }}</span>
+                    </div>
+                    <p>{{ course.description }}</p>
+                </div>
+            {% empty %}
+                <div class="note">������� ������� ����� ��?.</div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="panel clean-panel">
+        <div class="panel-heading">
+            <p class="eyebrow">��������������</p>
+            <h3>�������� ���</h3>
+        </div>
+        <div class="intervention-list">
+            {% for intervention in interventions %}
+                <div class="intervention-card large-card">
+                    <div class="card-row">
+                        <strong>{{ intervention.title }}</strong>
+                        <span class="badge badge-{{ intervention.priority }}">{{ intervention.get_priority_display }}</span>
+                    </div>
+                    <p><b>�������:</b> {{ intervention.student.full_name }}</p>
+                    {% if intervention.course %}
+                        <p><b>����:</b> {{ intervention.course.title }}</p>
+                    {% endif %}
+                    <p><b>��������:</b> {{ intervention.rationale }}</p>
+                    <p><b>?��������:</b> {{ intervention.recommended_actions }}</p>
+                    <small><b>�?����� �?����:</b> {{ intervention.expected_outcome }}</small>
+                </div>
+            {% empty %}
+                <div class="note">�������������� ?� ??�����?��.</div>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}

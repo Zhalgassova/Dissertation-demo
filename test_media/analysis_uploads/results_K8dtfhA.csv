@@ -1,0 +1,7 @@
+student,group,subject,topic,date,score,max_score,attendance
+Amina,8A,Mathematics,Fractions,2026-04-01,42,100,present
+Amina,8A,Mathematics,Equations,2026-04-05,58,100,present
+Dias,8A,Mathematics,Fractions,2026-04-01,34,100,absent
+Dana,8B,Physics,Motion,2026-04-02,77,100,present
+Dana,8B,Physics,Force,2026-04-06,71,100,late
+Miras,8B,Physics,Motion,2026-04-02,88,100,present

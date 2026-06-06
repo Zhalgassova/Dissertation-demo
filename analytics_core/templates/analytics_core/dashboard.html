@@ -1,0 +1,109 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+
+<script>
+function toggleLevelInfo() {
+    let el = document.getElementById("levelInfo");
+    el.style.display = el.style.display === "none" ? "block" : "none";
+}
+
+function togglePinfo() {
+    let el = document.getElementById("pInfo");
+    el.style.display = el.style.display === "none" ? "block" : "none";
+}
+
+function toggleEinfo() {
+    let el = document.getElementById("eInfo");
+    el.style.display = el.style.display === "none" ? "block" : "none";
+}
+</script>
+
+<section class="simple-hero">
+    <h2>���� ���� �����������</h2>
+</section>
+
+<!-- ?? KPI -->
+<section class="kpi-row">
+    <div class="metric-card">
+        <span>��� ����</span>
+        <strong>2</strong>
+    </div>
+
+    <div class="metric-card">
+        <span>����? ����</span>
+        <strong>8</strong>
+    </div>
+
+    <!-- ?? ������������ ������ -->
+    <div class="metric-card accent" onclick="toggleLevelInfo()" style="cursor:pointer;">
+        <span>������ ����</span>
+        <strong>{{ avg_score }}%</strong>
+        <small id="levelText">{{ level }}</small>
+    </div>
+
+    <div class="metric-card">
+        <span>�������</span>
+        <strong>{{ median }}%</strong>
+    </div>
+</section>
+
+<!-- ?? ������ -->
+<div id="levelInfo" style="display:none" class="alert alert-info mt-2">
+    <b>��?� ��?������:</b><br>
+    ?? �?���: 0 � 69%<br>
+    ?? ����: 70 � 89%<br>
+    ?? ��?���: 90 � 100%
+</div>
+
+<!-- ?? ���������� -->
+<section class="panel clean-panel">
+    <h3>��������? ������������? ?��������</h3>
+
+    <div class="grid">
+        <div class="metric-card">
+            <span>��?���� ����</span>
+            <strong>{{ control_name }}</strong>
+        </div>
+
+        <div class="metric-card">
+            <span>����������� ����</span>
+            <strong>{{ experiment_name }}</strong>
+        </div>
+
+        <!-- ?? P VALUE -->
+        <div class="metric-card" onclick="togglePinfo()" style="cursor:pointer;">
+            <span>p-value</span>
+            <strong>{{ p_value }}</strong>
+        </div>
+
+        <!-- ?? EFFECT SIZE -->
+        <div class="metric-card" onclick="toggleEinfo()" style="cursor:pointer;">
+            <span>Effect size</span>
+            <strong>{{ effect_size }}</strong>
+        </div>
+    </div>
+
+    <!-- ?? P INFO -->
+    <div id="pInfo" style="display:none" class="alert alert-warning mt-3">
+        <b>p-value �?������:</b><br>
+        p &lt; 0.05 > ����������? ������������? �?��<br>
+        p ? 0.05 > ����������? �?�� ����
+    </div>
+
+    <!-- ?? EFFECT INFO -->
+    <div id="eInfo" style="display:none" class="alert alert-success mt-3">
+        <b>Effect size �?������:</b><br>
+        0.2 > ��� ?���<br>
+        0.5 > ������ ?���<br>
+        0.8+ > ?���� ?���
+    </div>
+
+    <!-- ?? ������������� -->
+    <div class="mt-3 p-3 bg-light rounded">
+        <b>�������������:</b><br>
+        {{ interpretation }}
+    </div>
+</section>
+
+{% endblock %}

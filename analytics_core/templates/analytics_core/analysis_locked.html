@@ -1,0 +1,19 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-5 text-center">
+        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">Уақытша бос күй</span>
+        <h1 class="h3 mb-3">{{ section_title }}</h1>
+        <p class="lead text-secondary mb-4">{{ section_description }}</p>
+        <p class="text-secondary mb-4">
+            Қазір белсенді нәтиже таңдалмаған. Жоғарғы панельдегі мұғалімдердің бірін бассаңыз,
+            сол мұғалімнің пәні бойынша дайын аналитика бірден ашылады.
+        </p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <a class="btn btn-primary" href="{% url 'analytics_core:analysis_lab' %}">Дайын пәндерді ашу</a>
+            <a class="btn btn-outline-primary" href="{% url 'analytics_core:download_template' %}">Excel шаблонын жүктеу</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

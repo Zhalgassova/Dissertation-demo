@@ -1,0 +1,28 @@
+<section class="clean-card p-4 mb-4">
+    <div class="dataset-context-grid">
+        <div class="dataset-context-item">
+            <span>Пән атауы</span>
+            <strong>{{ dataset.subject_title|default:dataset.title }}</strong>
+        </div>
+        <div class="dataset-context-item">
+            <span>Пән мұғалімі</span>
+            <strong>{{ dataset.teacher_name|default:"Көрсетілмеген" }}</strong>
+        </div>
+        <div class="dataset-context-item">
+            <span>Оқу контексті</span>
+            <strong>{{ dataset.cohort_label|default:"Көрсетілмеген" }}</strong>
+        </div>
+        <div class="dataset-context-item">
+            <span>Оқу құрылымы</span>
+            <strong>8 сабақ • әр сабақта 3 тапсырма</strong>
+        </div>
+        <div class="dataset-context-item">
+            <span>Дереккөзі</span>
+            <strong>{{ dataset.original_filename }}</strong>
+        </div>
+        <div class="dataset-context-item">
+            <span>Жалпы жазба саны</span>
+            <strong>{{ dataset.row_count }}</strong>
+        </div>
+    </div>
+</section>

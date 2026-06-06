@@ -1,0 +1,114 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+<section class="simple-hero">
+    <div>
+        <p class="eyebrow">Student profile</p>
+        <h2>{{ student.full_name }}</h2>
+        <p class="lead">{{ student.study_group }} � ������� {{ student.cohort }} � ������?� GPA {{ student.prior_gpa }}</p>
+    </div>
+</section>
+
+<section class="kpi-row">
+    <div class="metric-card accent">
+        <span>�?�����</span>
+        <strong>{{ risk_score }}%</strong>
+        <small>{{ risk_label }}</small>
+    </div>
+    <div class="metric-card">
+        <span>?�����</span>
+        <strong>{{ attendance }}%</strong>
+    </div>
+    <div class="metric-card">
+        <span>�������������</span>
+        <strong>{{ engagement }}%</strong>
+    </div>
+    <div class="metric-card">
+        <span>������������</span>
+        <strong>{{ achievement }}%</strong>
+    </div>
+</section>
+
+<section class="focus-grid">
+    <article class="panel clean-panel">
+        <div class="panel-heading">
+            <p class="eyebrow">�?� ������������</p>
+            <h3>������� �?�� �?����?� ��������</h3>
+        </div>
+        <div class="course-grid">
+            {% for item in course_cards %}
+                <div class="course-card">
+                    <div class="course-topline">
+                        <strong>{{ item.course.title }}</strong>
+                        <span>{{ item.course.code }}</span>
+                    </div>
+                    <p>{{ item.teacher.full_name }}</p>
+                    <dl>
+                        <div>
+                            <dt>�?����?� ����</dt>
+                            <dd>{{ item.current_grade }}</dd>
+                        </div>
+                        <div>
+                            <dt>��������</dt>
+                            <dd>{{ item.progress_pct }}%</dd>
+                        </div>
+                        <div>
+                            <dt>������</dt>
+                            <dd>{{ item.status }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            {% empty %}
+                <div class="note">������� ���� ��?.</div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="panel clean-panel warm-panel">
+        <div class="panel-heading">
+            <p class="eyebrow">?��������</p>
+            <h3>������������? ?��������</h3>
+        </div>
+        <div class="plain-list">
+            {% for recommendation in recommendations %}
+                <div class="plain-item recommendation-item">
+                    <p>{{ recommendation }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+
+<section class="focus-grid">
+    <article class="panel clean-panel">
+        <div class="panel-heading">
+            <p class="eyebrow">��������������</p>
+            <h3>�?�������� �������</h3>
+        </div>
+        <div class="intervention-list">
+            {% for intervention in interventions %}
+                <div class="intervention-card">
+                    <div class="badge badge-{{ intervention.priority }}">{{ intervention.get_priority_display }}</div>
+                    <strong>{{ intervention.title }}</strong>
+                    <p>{{ intervention.rationale }}</p>
+                    <small>{{ intervention.expected_outcome }}</small>
+                </div>
+            {% empty %}
+                <div class="note">������ �������������� ?���� ��?.</div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="panel clean-panel">
+        <div class="panel-heading">
+            <p class="eyebrow">����������� �������������</p>
+            <h3>�?� ������� ��� ������?</h3>
+        </div>
+        <div class="note tall">
+            �?� ������� ��� ���� �������������? ������������? �?�� �?������: �?�� ��� �����? �?����������
+            ���� ?��� ?�����, ��� �?��������� ������� �??����� ��?�� ?����� ��������� ?������.
+            ����������� ?��� �?� ������ ��� ����������? ���������� �?�������� �?����� �����.
+        </div>
+    </article>
+</section>
+{% endblock %}

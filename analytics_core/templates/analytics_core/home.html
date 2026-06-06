@@ -1,0 +1,68 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+<section class="home-shell">
+    <div class="home-card">
+        <div class="home-header">
+            <div>
+                <span class="section-badge">Жеке мұғалім платформасы</span>
+                <h1 class="home-title mt-3">
+                    Оқу нәтижелерін талдауға арналған жеке аналитикалық кеңістік
+                </h1>
+                <p class="home-subtitle">
+                    Платформа мұғалімге деректерді жүктеп, 20 график арқылы талдау жасауға,
+                    статистикалық қорытындыны көруге және ЖИ-негізделген педагогикалық ұсыныстар алуға мүмкіндік береді.
+                </p>
+            </div>
+            <div class="home-actions">
+                {% if request.user.is_authenticated %}
+                    <a class="btn btn-primary btn-lg px-4" href="{% url 'analytics_core:analysis_lab' %}">Талдауды бастау</a>
+                {% else %}
+                    <a class="btn btn-primary btn-lg px-4" href="{% url 'analytics_core:register' %}">Тіркелу</a>
+                    <a class="btn btn-outline-primary btn-lg px-4" href="{% url 'login' %}">Кіру</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="overview-list-grid mt-4">
+            <article class="ai-info-card">
+                <span class="ai-info-card-label">1-қадам</span>
+                <strong class="d-block mb-2">Дайын пәнді таңдау</strong>
+                <p class="mb-0">Демо нұсқада үш мұғалімнің пәндік нәтижелері базаға алдын ала сақталған, сондықтан Excel жүктеудің қажеті жоқ.</p>
+            </article>
+            <article class="ai-info-card">
+                <span class="ai-info-card-label">2-қадам</span>
+                <strong class="d-block mb-2">20 графикпен талдау</strong>
+                <p class="mb-0">Аналитикалық панельде топтар айырмашылығы, сабақ динамикасы, before/after нәтижесі және тапсырма деңгейіндегі қорытындылар көрсетіледі.</p>
+            </article>
+            <article class="ai-info-card">
+                <span class="ai-info-card-label">3-қадам</span>
+                <strong class="d-block mb-2">Статистика және ЖИ</strong>
+                <p class="mb-0">p-мәні, t-статистика, effect size, тәуекел картасы және мұғалімге арналған әрекет жоспары автоматты түрде құралады.</p>
+            </article>
+        </div>
+
+        {% if request.user.is_authenticated %}
+            <div class="guide-card mt-4">
+                <h2 class="h5 mb-3">Демо нұсқамен жұмыс реті</h2>
+                <ol class="guide-list">
+                    <li>Жоғарғы панельден үш мұғалімнің бірін таңдаңыз.</li>
+                    <li>Сол мұғалімге тиесілі пән нәтижесі бірден белсенді болады.</li>
+                    <li>`Аналитикалық панель` бөлімінде 20 графиктік көрнекі талдауды қараңыз.</li>
+                    <li>`Статистикалық талдау` бөлімінде p-value, t-статистика және effect size нәтижелерін оқыңыз.</li>
+                    <li>`ЖИ қорытындысы` бөлімінде студенттерге арналған кері байланыс пен мұғалім ұсыныстарын пайдаланыңыз.</li>
+                </ol>
+            </div>
+        {% else %}
+            <div class="guide-card mt-4">
+                <h2 class="h5 mb-3">Платформаға кіру үшін</h2>
+                <ol class="guide-list">
+                    <li>Алдымен `Тіркелу` батырмасы арқылы мұғалім аккаунтын жасаңыз.</li>
+                    <li>Логин мен құпиясөз арқылы жүйеге кіріңіз.</li>
+                    <li>Кіргеннен кейін демо пәндер бірден ашылатын аналитикалық бөлімдер қолжетімді болады.</li>
+                </ol>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% if cards %}
+    <div class="row g-3">
+        {% for row in cards %}
+            <div class="col-12">
+                <details class="ai-student-card {{ row.card_class }}">
+                    <summary class="ai-student-summary">
+                        <div class="ai-student-summary-main">
+                            <div class="ai-student-title-row">
+                                <h3 class="ai-student-name mb-0">{{ row.student_name }}</h3>
+                                <span class="ai-student-group">{{ row.group_name }}</span>
+                            </div>
+                            <p class="ai-student-compact-note mb-0">{{ row.compact_note }}</p>
+                        </div>
+                        <div class="ai-student-summary-side">
+                            <span class="result-chip {{ row.level_class }}">{{ row.result_level }}</span>
+                            <span class="result-chip result-chip-muted">{{ row.average_score }}%</span>
+                        </div>
+                    </summary>
+
+                    <div class="ai-student-body">
+                        <div class="ai-student-section-title">Жеке даму траекториясы</div>
+                        <div class="ai-student-overview-grid">
+                            <div class="overview-list-item"><span>Қазіргі деңгейі</span><strong>{{ row.result_level }}</strong></div>
+                            <div class="overview-list-item"><span>Тәуекел деңгейі</span><strong>{{ row.risk_label }}</strong></div>
+                            <div class="overview-list-item"><span>Әлсіз тұсы</span><strong>{{ row.focus_lesson }}</strong></div>
+                            <div class="overview-list-item"><span>Негізгі тапсырма</span><strong>{{ row.focus_task_short }}</strong></div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-lg-4"><div class="support-item h-100"><strong class="d-block mb-2">Мұғалімге ЖИ шешімі</strong><span>{{ row.teacher_advice }}</span></div></div>
+                            <div class="col-lg-4"><div class="support-item h-100"><strong class="d-block mb-2">Келесі қадам</strong><span>{{ row.trajectory_step }}</span></div></div>
+                            <div class="col-lg-4"><div class="support-item h-100"><strong class="d-block mb-2">Күтілетін нәтиже</strong><span>{{ row.expected_result }}</span></div></div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-lg-6"><div class="overview-list-item h-100"><span>Төмен нәтиже көрсеткен сабақтар</span><strong>{{ row.weak_lessons }}</strong></div></div>
+                            <div class="col-lg-6"><div class="overview-list-item h-100"><span>Әлсіз тапсырмалар</span><strong>{{ row.weak_tasks }}</strong></div></div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-lg-5">
+                                <div class="ai-info-card h-100">
+                                    <span class="ai-info-card-label">Студентпен байланыс</span>
+                                    <strong class="ai-info-card-text mb-2">Электрондық пошта</strong>
+                                    {% if row.student_email %}
+                                        <a class="ai-email-note" href="mailto:{{ row.student_email }}">{{ row.student_email }}</a>
+                                    {% else %}
+                                        <div class="ai-comment-helper">Электрондық пошта көрсетілмеген.</div>
+                                    {% endif %}
+                                    <div class="ai-comment-helper mt-3">
+                                        Мұнда мұғалім студентке арналған жеке түсіндірме, түзету тапсырмасы немесе қосымша нұсқаулық қалдыра алады.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="ai-info-card h-100">
+                                    <span class="ai-info-card-label">Мұғалімнің комментарийі</span>
+                                    <form method="post" class="ai-comment-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="student_name" value="{{ row.student_name }}">
+                                        <input type="hidden" name="student_email" value="{{ row.student_email }}">
+                                        <input type="hidden" name="group_name" value="{{ row.group_name }}">
+                                        <input type="hidden" name="score_band" value="{{ selected_filters.score_band|default:'all' }}">
+                                        <input type="hidden" name="task_focus" value="{{ selected_filters.task_focus|default:'all' }}">
+                                        <textarea name="comment" class="form-control ai-comment-textarea" rows="4" placeholder="Студентке арналған қосымша тапсырма, жеке ескерту немесе кері байланыс жазыңыз">{{ row.teacher_comment }}</textarea>
+                                        <div class="ai-comment-actions">
+                                            <button type="submit" class="btn btn-primary btn-sm">Сақтау</button>
+                                            {% if row.mailto_link %}
+                                                <a class="btn btn-outline-secondary btn-sm" href="{{ row.mailto_link }}">Поштаға дайындау</a>
+                                            {% endif %}
+                                        </div>
+                                    </form>
+                                    {% if row.comment_updated_at %}
+                                        <div class="ai-comment-helper">Соңғы жаңарту: {{ row.comment_updated_at }}</div>
+                                    {% else %}
+                                        <div class="ai-comment-helper">Комментарий сақталғаннан кейін оны студентке арналған жеке кері байланыс ретінде пайдалануға болады.</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-secondary">{{ empty_text }}</div>
+{% endif %}

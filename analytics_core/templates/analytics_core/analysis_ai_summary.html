@@ -1,0 +1,253 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+<section class="clean-card p-4 p-lg-5 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <span class="section-badge">ЖИ қорытындысы</span>
+            <h1 class="h3 mt-3 mb-2">ЖИ-негізделген педагогикалық қорытынды</h1>
+            <p class="text-secondary mb-0">
+                Бұл бөлімде студенттердің нәтижелік деңгейлері, жеке даму траекториясы,
+                мұғалімге арналған әрекет жоспары және студентке жіберуге болатын жеке комментарийлер жинақталған.
+            </p>
+        </div>
+        <a class="btn btn-outline-primary" href="{% url 'analytics_core:analysis_statistics' %}">Статистикалық талдау</a>
+    </div>
+</section>
+
+{% include "analytics_core/partials/dataset_context_banner.html" %}
+
+<section class="clean-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="h5 mb-1">Сүзгі және тапсырма көрінісі</h2>
+            <p class="text-secondary mb-0">
+                Баға деңгейі және тапсырма бойынша сүзгі қойып, қай тапсырмада қиындық жиі кездесетінін жедел көруге болады.
+            </p>
+        </div>
+    </div>
+
+    <form method="get" class="row g-3 align-items-end mb-4">
+        <div class="col-md-4">
+            <label class="form-label fw-semibold">Баға бойынша сүзгі</label>
+            <select class="form-select" name="score_band">
+                {% for option in score_filter_options %}
+                    <option value="{{ option.value }}" {% if selected_filters.score_band == option.value %}selected{% endif %}>{{ option.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-semibold">Тапсырма бойынша сүзгі</label>
+            <select class="form-select" name="task_focus">
+                {% for option in task_filter_options %}
+                    <option value="{{ option.value }}" {% if selected_filters.task_focus == option.value %}selected{% endif %}>{{ option.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+            <button class="btn btn-primary flex-fill" type="submit">Сүзгіні қолдану</button>
+            <a class="btn btn-outline-secondary flex-fill" href="{% url 'analytics_core:analysis_ai' %}">Тазарту</a>
+        </div>
+    </form>
+
+    <div class="interpretation-box mb-4">{{ filter_summary }}</div>
+
+    <div class="row g-3 mb-2">
+        {% for item in task_health_cards %}
+            <div class="col-md-4">
+                <div class="ai-level-card {{ item.class_name }}">
+                    <span class="ai-level-card-label">{{ item.label }}</span>
+                    <strong class="ai-level-card-value">{{ item.value }}</strong>
+                    <p class="ai-level-card-text mb-0">{{ item.description }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="clean-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="h5 mb-1">Нәтижелік деңгейлер бойынша студенттер</h2>
+            <p class="text-secondary mb-0">
+                ФИО-ны басқанда сол студенттің жеке даму траекториясы, әлсіз тұстары және студентке жіберілетін жеке комментарий блогы ашылады.
+            </p>
+        </div>
+        <ul class="nav nav-pills gap-2" id="ai-level-tabs" role="tablist">
+            <li class="nav-item" role="presentation"><button class="btn btn-outline-danger active" id="low-tab" data-bs-toggle="pill" data-bs-target="#low-pane" type="button" role="tab">Төмен ({{ student_group_counts.low|default:0 }})</button></li>
+            <li class="nav-item" role="presentation"><button class="btn btn-outline-warning" id="medium-tab" data-bs-toggle="pill" data-bs-target="#medium-pane" type="button" role="tab">Орташа ({{ student_group_counts.medium|default:0 }})</button></li>
+            <li class="nav-item" role="presentation"><button class="btn btn-outline-success" id="high-tab" data-bs-toggle="pill" data-bs-target="#high-pane" type="button" role="tab">Жоғары ({{ student_group_counts.high|default:0 }})</button></li>
+        </ul>
+    </div>
+
+    <div class="row g-3 mb-4">
+        {% for tile in level_tiles %}
+            <div class="col-md-4">
+                <div class="ai-level-card {{ tile.class_name }}">
+                    <span class="ai-level-card-label">{{ tile.label }}</span>
+                    <strong class="ai-level-card-value">{{ tile.count }}</strong>
+                    <p class="ai-level-card-text mb-0">{{ tile.description }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="tab-content" id="ai-level-content">
+        <div class="tab-pane fade show active" id="low-pane" role="tabpanel">{% include "analytics_core/partials/ai_student_cards.html" with cards=student_groups.low empty_text="Төмен нәтижелі студент табылмады." %}</div>
+        <div class="tab-pane fade" id="medium-pane" role="tabpanel">{% include "analytics_core/partials/ai_student_cards.html" with cards=student_groups.medium empty_text="Орташа нәтижелі студент табылмады." %}</div>
+        <div class="tab-pane fade" id="high-pane" role="tabpanel">{% include "analytics_core/partials/ai_student_cards.html" with cards=student_groups.high empty_text="Жоғары нәтижелі студент табылмады." %}</div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-lg-7">
+        <div class="clean-card h-100 p-4">
+            <h2 class="h5 mb-3">Жалпы қорытынды</h2>
+            <div class="overview-list">
+                {% for item in overall_insights %}
+                    <div class="overview-list-item">
+                        <span>{{ item.title }}</span>
+                        <strong>{{ item.text }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="clean-card h-100 p-4">
+            <h2 class="h5 mb-3">Мұғалімге ұсыныстар</h2>
+            <div class="overview-list">
+                {% for item in teacher_recommendations %}
+                    <div class="overview-list-item">
+                        <span>{{ item.title }}</span>
+                        <strong>{{ item.text }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if demo_effect_story %}
+<section class="clean-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <span class="section-badge">Талдамалық интерпретация</span>
+            <h2 class="h5 mb-1">{{ demo_effect_story.title }}</h2>
+            <p class="text-secondary mb-0">{{ demo_effect_story.subtitle }}</p>
+        </div>
+    </div>
+    <div class="row g-3">
+        {% for item in demo_effect_story.items %}
+            <div class="col-md-4">
+                <div class="ai-info-card h-100">
+                    <span class="ai-info-card-label">Педагогикалық әсер</span>
+                    <strong class="ai-info-card-text">{{ item.headline }}</strong>
+                    {% if item.students %}
+                        <div class="ai-comment-helper mt-3">Студенттер тізімі:</div>
+                        <ul class="mb-0 mt-2 ps-3 text-start">
+                            {% for student in item.students %}
+                                <li>{{ student }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section class="clean-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="h5 mb-1">Мұғалімге қатысты ақпараттар</h2>
+            <p class="text-secondary mb-0">
+                Бұл бөлім мұғалімге сынып бойынша жедел шешім қабылдауға көмектесетін жинақы талдамалық ақпаратты ұсынады.
+            </p>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills gap-2 mb-4" id="teacher-ai-tabs" role="tablist">
+        <li class="nav-item" role="presentation"><button class="btn btn-outline-primary active" id="plan-tab" data-bs-toggle="pill" data-bs-target="#plan-pane" type="button" role="tab">Жедел әрекет жоспары</button></li>
+        <li class="nav-item" role="presentation"><button class="btn btn-outline-primary" id="trajectory-tab" data-bs-toggle="pill" data-bs-target="#trajectory-pane" type="button" role="tab">Жеке даму траекториясы</button></li>
+        <li class="nav-item" role="presentation"><button class="btn btn-outline-primary" id="weak-tab" data-bs-toggle="pill" data-bs-target="#weak-pane" type="button" role="tab">Әлсіз аймақ шешімі</button></li>
+        <li class="nav-item" role="presentation"><button class="btn btn-outline-primary" id="auto-tab" data-bs-toggle="pill" data-bs-target="#auto-pane" type="button" role="tab">Дайын қорытынды</button></li>
+    </ul>
+
+    <div class="tab-content" id="teacher-ai-content">
+        <div class="tab-pane fade show active" id="plan-pane" role="tabpanel">
+            <div class="row g-3">
+                {% for item in teacher_action_plan %}
+                    <div class="col-md-6"><div class="ai-info-card h-100"><span class="ai-info-card-label">{{ item.title }}</span><strong class="ai-info-card-text">{{ item.text }}</strong></div></div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="tab-pane fade" id="trajectory-pane" role="tabpanel">
+            <div class="row g-3">
+                {% for item in trajectory_groups %}
+                    <div class="col-lg-4">
+                        <div class="ai-info-card h-100">
+                            <span class="ai-info-card-label">{{ item.title }}</span>
+                            <strong class="d-block mb-2">{{ item.subtitle }}</strong>
+                            <p class="mb-2">{{ item.students }}</p>
+                            <div class="ai-note-card mb-2"><span>Келесі әрекет</span><strong>{{ item.action }}</strong></div>
+                            <div class="ai-note-card"><span>Күтілетін нәтиже</span><strong>{{ item.expected }}</strong></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="tab-pane fade" id="weak-pane" role="tabpanel">
+            <div class="row g-3">
+                {% for item in weak_area_solutions %}
+                    <div class="col-lg-6">
+                        <div class="ai-solution-card h-100">
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                <div>
+                                    <span class="ai-info-card-label">{{ item.area_type }}</span>
+                                    <h3 class="h6 mb-1">{{ item.title }}</h3>
+                                </div>
+                                <span class="result-chip result-chip-muted">{{ item.metric }}</span>
+                            </div>
+                            <div class="ai-note-card mb-2"><span>Себебі</span><strong>{{ item.reason }}</strong></div>
+                            <div class="ai-note-card mb-2"><span>Не істеу керек</span><strong>{{ item.action }}</strong></div>
+                            <div class="ai-note-card"><span>Қандай әдіс тиімді</span><strong>{{ item.method }}</strong></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="tab-pane fade" id="auto-pane" role="tabpanel">
+            <div class="row g-3">
+                {% for item in auto_pedagogical_summary %}
+                    <div class="col-md-6"><div class="ai-auto-card h-100"><span class="ai-info-card-label">{{ item.title }}</span><strong class="ai-info-card-text">{{ item.text }}</strong></div></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="clean-card p-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="h5 mb-1">Тәуекел картасы</h2>
+            <p class="text-secondary mb-0">
+                Бұл карта мұғалімге жедел назар қажет студенттерді тез анықтауға көмектеседі.
+                Студенттер тәуекел деңгейі бойынша топтастырылған.
+            </p>
+        </div>
+    </div>
+    <div class="row g-3">
+        {% for item in risk_cards %}
+            <div class="col-lg-4">
+                <div class="ai-level-card {{ item.class_name }}">
+                    <span class="ai-level-card-label">{{ item.label }}</span>
+                    <strong class="ai-level-card-value">{{ item.count }}</strong>
+                    <p class="ai-level-card-text mb-0">{{ item.description }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+<section class="auth-shell">
+    <div class="auth-card">
+        <div class="auth-side">
+            <span class="section-badge">Мұғалім кабинеті</span>
+            <h1 class="auth-title mt-3">Жеке аналитикалық платформаға кіру</h1>
+            <p class="auth-text">
+                Логин мен құпиясөзді енгізіп, өзіңіздің аналитикалық панеліңізге, статистикалық есептеріңізге және
+                ЖИ қорытындыларыңызға өтіңіз.
+            </p>
+            <ul class="auth-feature-list">
+                <li>Деректерді жүктеу және сақтау</li>
+                <li>20 графиктен тұратын толық аналитикалық бөлім</li>
+                <li>PDF, Excel және DOCX есептерін жүктеу</li>
+            </ul>
+        </div>
+        <div class="auth-form-panel">
+            <h2 class="h4 mb-3">Кіру</h2>
+            <p class="text-secondary mb-4">Есептер мен талдау беттерін ашу үшін жүйеге кіріңіз.</p>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger border-0">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    {% for error in form.username.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    {{ form.password }}
+                    {% for error in form.password.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <button class="btn btn-primary w-100" type="submit">Жүйеге кіру</button>
+            </form>
+
+            <div class="auth-footer-note mt-4">
+                Аккаунтыңыз жоқ па?
+                <a href="{% url 'analytics_core:register' %}">Мұғалім ретінде тіркеліңіз</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

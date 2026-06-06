@@ -1,0 +1,215 @@
+{% extends "analytics_core/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="analytics-hero clean-card p-4 p-lg-5 mb-4">
+    <div class="analytics-hero-grid">
+        <div>
+            <span class="section-badge">Аналитикалық панель</span>
+            <h1 class="analytics-hero-title mt-3 mb-2">Мұғалімге арналған 20 графиктік толық аналитикалық бөлім</h1>
+            <p class="analytics-hero-text mb-0">
+                {{ dataset.title }} бойынша оқу нәтижелері 5 бөлімге бөлініп талданды.
+                Әр графиктің астында оның педагогикалық мағынасы мен қысқаша қорытындысы берілген.
+            </p>
+            <div class="analytics-meta mt-3">
+                <span>{{ overview_cards.students }} студент</span>
+                <span>{{ overview_cards.lessons }} сабақ</span>
+                <span>{{ overview_cards.tasks }} тапсырма</span>
+                <span>{{ charts|length }} график</span>
+            </div>
+        </div>
+        <div class="analytics-hero-actions">
+            <a class="btn btn-outline-primary" href="{% url 'analytics_core:analysis_statistics' %}">Статистикалық талдау</a>
+            <form method="post" action="{% url 'analytics_core:download_pdf_analysis' dataset.id %}" class="js-pdf-export-form" data-export-scope="all">
+                {% csrf_token %}
+                <button class="btn btn-outline-secondary" type="submit">Толық PDF есеп</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% include "analytics_core/partials/dataset_context_banner.html" %}
+
+<section class="clean-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+        <div>
+            <h2 class="h5 mb-1">PDF есепті жүктеу</h2>
+            <p class="text-secondary mb-0">
+                Бірінші нұсқа барлық 20 графикті түсіндірмесімен бірге жүктейді.
+                Екінші нұсқа тек өзіңіз таңдаған графиктерді есепке енгізеді.
+            </p>
+        </div>
+        <form method="post" action="{% url 'analytics_core:download_pdf_analysis' dataset.id %}" class="js-pdf-export-form" data-export-scope="all">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">20 графикпен толық жүктеу</button>
+        </form>
+    </div>
+
+    <form method="post" action="{% url 'analytics_core:download_pdf_analysis' dataset.id %}" class="js-pdf-export-form" data-export-scope="selected">
+        {% csrf_token %}
+        <div class="row g-3">
+            {% for section in chart_download_sections %}
+                <div class="col-lg-6">
+                    <div class="ai-info-card h-100">
+                        <span class="ai-info-card-label">{{ section.tag }}</span>
+                        <strong class="d-block mb-3">{{ section.title }}</strong>
+                        <div class="chart-select-list">
+                            {% for chart in section.charts %}
+                                <label class="chart-select-item">
+                                    <input type="checkbox" name="chart_id" value="{{ chart.id }}" {% if chart.checked %}checked{% endif %}>
+                                    <span>{{ chart.title }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <button class="btn btn-outline-primary" type="button" id="select-all-charts">Барлығын таңдау</button>
+            <button class="btn btn-outline-secondary" type="button" id="clear-all-charts">Таңдауды тазарту</button>
+            <button class="btn btn-primary" type="submit">Таңдалған графиктерді жүктеу</button>
+        </div>
+    </form>
+</section>
+
+<section class="row g-4 mb-4">
+    {% for metric in metric_cards %}
+        <div class="col-lg-3 col-md-6">
+            <details class="card border-0 shadow-sm rounded-4 h-100" style="overflow:hidden; background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);">
+                <summary class="p-4" style="list-style:none; cursor:pointer;">
+                    <span class="d-block text-secondary fw-semibold mb-2">{{ metric.label }}</span>
+                    <strong class="d-block mb-2" style="font-size:2rem; line-height:1.08; color:#182338;">
+                        {% if metric.is_html %}{{ metric.value|safe }}{% else %}{{ metric.value }}{% endif %}
+                    </strong>
+                    <small class="d-block" style="color:#607086; line-height:1.55;">{{ metric.subtitle }}</small>
+                    <span class="d-block mt-3 fw-bold" style="color:#2448a7; font-size:0.9rem;">Түсіндірмесін ашу</span>
+                </summary>
+                <div class="px-4 pb-4 pt-3" style="border-top:1px solid rgba(24,35,56,0.08); background:#f7f9fc; color:#4c5a70; line-height:1.7;">
+                    {{ metric.details }}
+                </div>
+            </details>
+        </div>
+    {% endfor %}
+</section>
+
+{% for section in chart_sections %}
+    <section class="analysis-section clean-card p-4 p-lg-5 mb-4">
+        <div class="analysis-section-head">
+            <div>
+                <span class="section-badge">{{ section.tag }}</span>
+                <h2 class="analysis-section-title mt-3 mb-2">{{ section.title }}</h2>
+                <p class="analytics-hero-text mb-0">{{ section.intro }}</p>
+            </div>
+        </div>
+        <div class="row g-4 mt-1">
+            {% for chart in section.charts %}
+                <div class="col-12 col-xl-6">
+                    <article class="analysis-chart-card h-100" data-chart-id="{{ chart.id }}">
+                        <div class="analysis-chart-header"><h3>{{ chart.title }}</h3></div>
+                        <p class="analysis-chart-description">{{ chart.description }}</p>
+                        <div class="plotly-chart analysis-plotly-chart" id="{{ chart.dom_id }}"></div>
+                        <div class="analysis-chart-notes">
+                            <div class="analysis-chart-note">
+                                <strong>График нені көрсетеді:</strong>
+                                <p>{{ chart.teacher_note }}</p>
+                            </div>
+                            <div class="analysis-chart-note analysis-chart-note-highlight">
+                                <strong>Түсіндірме қорытынды:</strong>
+                                <p>{{ chart.interpretation|safe }}</p>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endfor %}
+{% endblock %}
+
+{% block extra_scripts %}
+    {{ charts|json_script:"plotly-charts" }}
+    <script src="{% static 'analytics_core/js/plotly_renderer.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const allBoxes = Array.from(document.querySelectorAll('input[name="chart_id"]'));
+            const selectAllButton = document.getElementById('select-all-charts');
+            const clearAllButton = document.getElementById('clear-all-charts');
+            const exportForms = Array.from(document.querySelectorAll('.js-pdf-export-form'));
+
+            function clearGeneratedInputs(form) {
+                form.querySelectorAll('.js-chart-export-input').forEach(function (node) { node.remove(); });
+            }
+
+            function createHiddenInput(name, value) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                input.className = 'js-chart-export-input';
+                return input;
+            }
+
+            async function appendChartImages(form, chartIds) {
+                clearGeneratedInputs(form);
+                for (const chartId of chartIds) {
+                    const chartHost = document.querySelector('[data-chart-id="' + chartId + '"] .plotly-chart');
+                    if (!chartHost || typeof Plotly === 'undefined' || typeof Plotly.toImage !== 'function') {
+                        continue;
+                    }
+                    try {
+                        const dataUrl = await Plotly.toImage(chartHost, {
+                            format: 'png',
+                            width: 1280,
+                            height: 760,
+                            scale: 1.5
+                        });
+                        form.appendChild(createHiddenInput('chart_image_' + chartId, dataUrl));
+                    } catch (error) {
+                        console.warn('Chart export error:', chartId, error);
+                    }
+                }
+            }
+
+            if (selectAllButton) {
+                selectAllButton.addEventListener('click', function () { allBoxes.forEach(function (box) { box.checked = true; }); });
+            }
+
+            if (clearAllButton) {
+                clearAllButton.addEventListener('click', function () { allBoxes.forEach(function (box) { box.checked = false; }); });
+            }
+
+            exportForms.forEach(function (form) {
+                form.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    const scope = form.dataset.exportScope || 'selected';
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    const originalText = submitButton ? submitButton.textContent : '';
+                    const chartIds = scope === 'all'
+                        ? Array.from(document.querySelectorAll('.analysis-chart-card[data-chart-id]')).map(function (card) { return card.dataset.chartId; })
+                        : allBoxes.filter(function (box) { return box.checked; }).map(function (box) { return box.value; });
+
+                    if (scope === 'selected' && !chartIds.length) {
+                        window.alert('Кемінде бір графикті таңдаңыз.');
+                        return;
+                    }
+
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.textContent = 'PDF дайындалып жатыр...';
+                    }
+
+                    try {
+                        await appendChartImages(form, chartIds);
+                        form.submit();
+                    } finally {
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                            submitButton.textContent = originalText;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

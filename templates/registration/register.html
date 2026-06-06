@@ -1,0 +1,87 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+<section class="auth-shell">
+    <div class="auth-card">
+        <div class="auth-side">
+            <span class="section-badge">Тіркелу</span>
+            <h1 class="auth-title mt-3">Мұғалім аккаунтын ашу</h1>
+            <p class="auth-text">
+                Бір рет тіркелгеннен кейін платформаға логин мен құпиясөз арқылы кіріп, өз талдауыңызды жүргізе аласыз.
+            </p>
+            <ul class="auth-feature-list">
+                <li>Файл жүктеу және оқу нәтижелерін талдау</li>
+                <li>Топаралық статистикалық қорытындыны автоматты алу</li>
+                <li>ЖИ-негізделген педагогикалық ұсыныстарды пайдалану</li>
+            </ul>
+        </div>
+        <div class="auth-form-panel">
+            <h2 class="h4 mb-3">Мұғалім ретінде тіркелу</h2>
+            <p class="text-secondary mb-4">Төмендегі өрістерді толтырып, жеке кабинет жасаңыз.</p>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                        {{ form.first_name }}
+                        {% for error in form.first_name.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                        {{ form.last_name }}
+                        {% for error in form.last_name.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                        {{ form.username }}
+                        {% for error in form.username.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% for error in form.email.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+                        {{ form.password1 }}
+                        {% for error in form.password1.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                        {{ form.password2 }}
+                        {% for error in form.password2.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger border-0 mt-3">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <button class="btn btn-primary w-100 mt-4" type="submit">Аккаунт ашу</button>
+            </form>
+
+            <div class="auth-footer-note mt-4">
+                Аккаунтыңыз бар ма?
+                <a href="{% url 'login' %}">Жүйеге кіріңіз</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

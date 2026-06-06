@@ -1,0 +1,120 @@
+{% extends "analytics_core/base.html" %}
+
+{% block content %}
+{% if dataset.status != 'ready' %}
+    <div class="clean-card p-4">
+        <h1 class="h4 mb-3">{{ dataset.title }}</h1>
+        <p class="text-secondary mb-0">Файл әлі дайын емес немесе өңдеу кезінде қате пайда болды.</p>
+        {% if dataset.error_message %}
+            <div class="alert alert-danger mt-3 mb-0">{{ dataset.error_message }}</div>
+        {% endif %}
+    </div>
+{% else %}
+    {% include "analytics_core/partials/dataset_context_banner.html" %}
+
+    <section class="clean-card action-toolbar p-3 mb-4">
+        <div class="d-flex justify-content-end gap-2 flex-wrap">
+            <a class="btn btn-outline-primary" href="{% url 'analytics_core:analysis_table' %}">Деректер кестесі</a>
+            <a class="btn btn-outline-secondary" href="{% url 'analytics_core:download_excel_analysis' dataset.id %}">Excel экспорт</a>
+            <a class="btn btn-outline-secondary" href="{% url 'analytics_core:download_pdf_analysis' dataset.id %}">PDF экспорт</a>
+            <a class="btn btn-outline-secondary" href="{% url 'analytics_core:download_report' dataset.id %}">DOCX есеп</a>
+        </div>
+    </section>
+
+    <section class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card stat-card-blue h-100">
+                <span>Топ саны</span>
+                <strong>{{ overview.overview_cards.groups }}</strong>
+                <small>Бақылау және эксперимент</small>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card stat-card-teal h-100">
+                <span>Сабақ саны</span>
+                <strong>{{ overview.overview_cards.lessons }}</strong>
+                <small>Талдауға енген сабақтар</small>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card {% if overview.overview_cards.average_score >= 85 %}stat-card-emerald{% elif overview.overview_cards.average_score >= 70 %}stat-card-amber{% else %}stat-card-rose{% endif %} h-100">
+                <span class="metric-label">Орташа балл</span>
+                <strong>{{ overview.overview_cards.average_score }}%</strong>
+                <small>{{ average_level }} деңгейі</small>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card stat-card-blue h-100">
+                <span>Медиана</span>
+                <strong>{{ overview.overview_cards.median_score }}%</strong>
+                <small>Орталық мән</small>
+            </div>
+        </div>
+    </section>
+
+    <section class="row g-4">
+        <div class="col-lg-7">
+            <div class="clean-card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                    <div>
+                        <h2 class="h4 mb-1">Топаралық статистикалық қорытынды</h2>
+                        <p class="text-secondary mb-0">Бақылау және эксперимент тобының айырмашылығы статистикалық және практикалық тұрғыдан бағаланды.</p>
+                    </div>
+                    <span class="result-chip {% if overview.comparison.p_value and overview.comparison.p_value < 0.05 %}result-chip-success{% else %}result-chip-muted{% endif %}">
+                        {% if overview.comparison.p_value and overview.comparison.p_value < 0.05 %}
+                            Айырмашылық мәнді
+                        {% else %}
+                            Айырмашылық айқын емес
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="stats-summary-grid">
+                    <div class="stats-summary-item">
+                        <span>Бақылау тобы</span>
+                        <strong>{{ overview.comparison.control_label }}</strong>
+                    </div>
+                    <div class="stats-summary-item">
+                        <span>Эксперимент тобы</span>
+                        <strong>{{ overview.comparison.experiment_label }}</strong>
+                    </div>
+                    <div class="stats-summary-item">
+                        <span>p-value</span>
+                        <strong>{{ overview.comparison.p_value_scientific|default:overview.comparison.p_value|default:"-" }}</strong>
+                        <small class="metric-hint">{{ overview.comparison.p_value_guidance.summary|default:"-" }}</small>
+                    </div>
+                    <div class="stats-summary-item">
+                        <span>Effect size</span>
+                        <strong>{{ overview.comparison.effect_size_display|default:overview.comparison.effect_size|default:"-" }}</strong>
+                        <small class="metric-hint">{{ overview.comparison.effect_size_guidance.level|default:"-" }}</small>
+                    </div>
+                </div>
+
+                <div class="interpretation-box mt-3">
+                    <h3 class="h6 mb-2">Түсіндірме</h3>
+                    <p class="mb-2">{{ overview.comparison.interpretation }}</p>
+                    <p class="mb-0">Бұл шолу таңдалған пәннің жалпы зерттеу нәтижесін тез бағалауға арналған.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="clean-card h-100 p-4">
+                <h2 class="h4 mb-3">Жылдам шолу</h2>
+                <div class="overview-list overview-list-grid">
+                    <div class="overview-list-item"><span>Файл форматы</span><strong>{{ dataset.original_filename|slice:"-5:"|upper }}</strong></div>
+                    <div class="overview-list-item"><span>Жазба саны</span><strong>{{ dataset.row_count }}</strong></div>
+                    <div class="overview-list-item"><span>Студент саны</span><strong>{{ overview.overview_cards.students }}</strong></div>
+                    <div class="overview-list-item"><span>Тапсырма саны</span><strong>{{ overview.overview_cards.tasks }}</strong></div>
+                    <div class="overview-list-item"><span>Топ саны</span><strong>{{ overview.overview_cards.groups }}</strong></div>
+                    <div class="overview-list-item"><span>Сабақ саны</span><strong>{{ overview.overview_cards.lessons }}</strong></div>
+                    <div class="overview-list-item"><span>p-value</span><strong>{{ overview.comparison.p_value_scientific|default:overview.comparison.p_value|default:"-" }}</strong></div>
+                    <div class="overview-list-item"><span>Effect size</span><strong>{{ overview.comparison.effect_size_display|default:overview.comparison.effect_size|default:"-" }}</strong></div>
+                    <div class="overview-list-item"><span>Айырмашылық статусы</span><strong>{% if overview.comparison.p_value and overview.comparison.p_value < 0.05 %}Мәнді{% else %}Айқын емес{% endif %}</strong></div>
+                    <div class="overview-list-item"><span>Орташа балл деңгейі</span><strong>{{ average_level }}</strong></div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
+{% endblock %}

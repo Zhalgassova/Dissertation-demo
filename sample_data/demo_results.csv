@@ -1,0 +1,14 @@
+student,group,subject,topic,date,score,max_score,attendance
+Aruzhan,10A,Mathematics,Linear Equations,2026-04-01,46,100,present
+Aruzhan,10A,Mathematics,Functions,2026-04-05,59,100,present
+Aruzhan,10A,Physics,Motion,2026-04-08,63,100,late
+Nursultan,10A,Mathematics,Linear Equations,2026-04-01,35,100,absent
+Nursultan,10A,Physics,Motion,2026-04-08,48,100,present
+Madina,10B,Mathematics,Functions,2026-04-05,82,100,present
+Madina,10B,Physics,Force,2026-04-10,79,100,present
+Adil,10B,Physics,Force,2026-04-10,67,100,late
+Adil,10B,Chemistry,Atoms,2026-04-12,72,100,present
+Kamila,10C,Chemistry,Atoms,2026-04-12,91,100,present
+Kamila,10C,Biology,Cells,2026-04-14,88,100,present
+Sanzhar,10C,Biology,Cells,2026-04-14,54,100,absent
+Sanzhar,10C,Mathematics,Functions,2026-04-05,49,100,present
